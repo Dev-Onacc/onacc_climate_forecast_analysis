@@ -14,7 +14,7 @@ st.set_page_config(
 # Style CSS personnalisé
 st.markdown("""
     <style>
-    .main {background-color: #f0f2f6;}
+    .main {background-color: #fff;}
     h1 {color: #1f77b4;}
     h2 {color: #2ca02c; border-bottom: 2px solid #1f77b4;}
     .stTextArea textarea {height: 150px;}
@@ -45,7 +45,7 @@ if selected_page == "Documentation":
         Cette application permet de générer des prévisions météorologiques pour des localités spécifiques en utilisant :
         - Des coordonnées GPS (latitude/longitude)
         - Un fichier Excel de localités
-        - L'API Open-Meteo
+        - L'API ONACC-MC
 
         ### Fonctionnalités clés
         - Import de fichiers Excel avec gestion des localités
