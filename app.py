@@ -4,6 +4,7 @@ import requests
 import plotly.graph_objects as go
 from io import BytesIO
 from datetime import datetime
+from json import JSONDecodeError
 
 # Configuration de la page
 st.set_page_config(
@@ -42,11 +43,11 @@ if selected_page == "Documentation":
     
     with st.expander("## 🌟 Présentation générale", expanded=True):
         st.markdown("""
-        ### Objectif de l'application
+        # 🚀 Objectif de l'application
         Onacc Climate Forecast Analysis est une application interactive permettant d'obtenir des **prévisions météorologiques et climatiques** pour des localités spécifiques. L'application utilise des **coordonnées GPS**, des **fichiers Excel** ou une **saisie manuelle** pour générer des prévisions précises et interactives en exploitant l'API **ONACC-MC**.
         
 
-        ## 🌍 Fonctionnalités
+        # 🌍 Fonctionnalités
         ### 📂 Importation de Données
         - Importation d’un **fichier Excel** contenant des localités (latitude, longitude, altitude, région, pays).
         - Sélection et **filtrage avancé** des localités par région et pays.
@@ -152,30 +153,45 @@ if selected_page == "Documentation":
 
 # ================= FONCTIONS UTILITAIRES =================
 def create_dataframe(data, lat, lon, localite, mode):
-    """Crée le DataFrame à partir des données API"""
+    """Crée le DataFrame à partir des données API avec validation"""
+    try:
+        time_data = data["daily"]["time"]
+    except KeyError:
+        raise ValueError("Données temporelles manquantes dans la réponse API")
+    
     df = pd.DataFrame({
         "Localite": localite,
-        "Date": pd.to_datetime(data["daily"]["time"]),
+        "Date": pd.to_datetime(time_data),
         "Latitude": lat,
         "Longitude": lon
     })
-    
-    if mode == "Prévisions saisonnières":
-        if "temperature_2m_max_mean" in data["daily"]:
-            df["Température max (°C)"] = data["daily"]["temperature_2m_max_mean"]
-        if "temperature_2m_min_mean" in data["daily"]:
-            df["Température min (°C)"] = data["daily"]["temperature_2m_min_mean"]
-        if "precipitation_sum_mean" in data["daily"]:
-            df["Précipitations (mm)"] = data["daily"]["precipitation_sum_mean"]
-    else:
-        if "temperature_2m_max" in data["daily"]:
-            df["Température max (°C)"] = data["daily"]["temperature_2m_max"]
-        if "temperature_2m_min" in data["daily"]:
-            df["Température min (°C)"] = data["daily"]["temperature_2m_min"]
-        if "precipitation_sum" in data["daily"]:
-            df["Précipitations (mm)"] = data["daily"]["precipitation_sum"]
-    
+
+    param_mapping = {
+        "temperature_2m_max": "Température max (°C)",
+        "temperature_2m_min": "Température min (°C)",
+        "precipitation_sum": "Précipitations (mm)"
+    }
+
+    for api_param, df_column in param_mapping.items():
+        df[df_column] = data["daily"].get(api_param, None)
+
     return df
+
+def get_api_error(response_data, status_code):
+    """Gestion améliorée des erreurs API"""
+    error_message = f"Erreur HTTP {status_code}"
+    error_mapping = {
+        400: "Requête invalide - Vérifiez les paramètres",
+        401: "Authentification requise",
+        403: "Accès refusé",
+        404: "Endpoint introuvable",
+        500: "Erreur serveur"
+    }
+    
+    if isinstance(response_data, dict):
+        return f"{error_mapping.get(status_code, error_message)} : {response_data.get('reason', 'Erreur inconnue')}"
+    
+    return error_mapping.get(status_code, error_message)
 
 def add_metadata(df, mode, params):
     """Ajoute les métadonnées de prévision"""
@@ -285,6 +301,7 @@ def export_data(df):
         )
 
 
+# ================= INTERFACE UTILISATEUR =================
 # Entête avec logo
 col1, col2 = st.columns([1, 4])
 with col1:
@@ -298,7 +315,6 @@ if 'coordinates' not in st.session_state:
     st.session_state.coordinates = ""
 if 'selected_locations' not in st.session_state:
     st.session_state.selected_locations = pd.DataFrame()
-
 
 # Section d'importation de fichier
 with st.expander("📤 Importer un fichier de localités", expanded=True):
@@ -364,7 +380,6 @@ with st.form("input_form"):
         help="Format requis : 6.8399,13.2509, 6.4606,13.1184, ..."
     )
 
-    # Sélection du type de prévision
     forecast_mode = st.radio(
         "Type de prévision :",
         options=["Prévisions météo", "Prévisions saisonnières", "Projections climatiques"],
@@ -374,27 +389,20 @@ with st.form("input_form"):
     col1, col2 = st.columns(2)
     
     with col1:
-        # Configuration spécifique au type de prévision
         if forecast_mode == "Prévisions météo":
             forecast_type = st.radio(
                 "Période de prévision :",
                 ["Jours fixes", "Plage personnalisée"]
             )
-            
             if forecast_type == "Jours fixes":
-                forecast_days = st.selectbox(
-                    "Durée de prévision :",
-                    [1, 3, 7, 10, 14],
-                    index=2
-                )
+                forecast_days = st.selectbox("Durée :", [1, 3, 7, 10, 14], index=2)
             else:
-                date_range = st.date_input("Sélectionnez une plage de dates :", [])
-                if date_range:
-                    forecast_days = (date_range[1] - date_range[0]).days + 1
-                    
+                date_range = st.date_input("Plage de dates :", [])
+                forecast_days = (date_range[1] - date_range[0]).days + 1 if date_range else 1
+                
         elif forecast_mode == "Prévisions saisonnières":
             forecast_length = st.selectbox(
-                "Durée de prévision :",
+                "Durée :",
                 ["45 days", "3 months", "6 months", "9 months"]
             )
             
@@ -402,21 +410,21 @@ with st.form("input_form"):
             col1, col2 = st.columns(2)
             with col1:
                 start_date = st.date_input(
-                    "Date de début",
+                    "Début :",
                     value=datetime(2020, 1, 1),
                     min_value=datetime(1950, 1, 1),
                     max_value=datetime(2050, 12, 31)
                 )
             with col2:
                 end_date = st.date_input(
-                    "Date de fin", 
+                    "Fin :", 
                     value=datetime(2040, 1, 1),
                     min_value=start_date,
                     max_value=datetime(2050, 12, 31)
                 )
             model = st.selectbox(
-                "Modèle climatique",
-                options=["ONACC-MRI_AGCM3_2_S", "ONACC-FGOALS_f3_H", "ONACC-CMCC_CM2_VHR4"]
+                "Modèle :",
+                options=["MRI_AGCM3_2_S", "FGOALS_f3_H", "CMCC_CM2_VHR4"]
             )
     
     with col2:
@@ -427,7 +435,7 @@ with st.form("input_form"):
     
     submitted = st.form_submit_button("Générer la prévision")
 
-    
+# Traitement des données
 if submitted:
     try:
         # Initialiser coords_list
@@ -460,26 +468,28 @@ if submitted:
             for _, row in selected_locations.iterrows():
                 localite_map[(row['latitude'], row['longitude'])] = row['localite']
         
-        # Configuration des paramètres API
+
+        # Configuration API
         base_params = {
             "latitude": coords_list[::2],
             "longitude": coords_list[1::2],
             "daily": []
         }
-        
-        # Ajout des paramètres spécifiques
+
         if forecast_mode == "Prévisions météo":
             endpoint = "https://api.open-meteo.com/v1/forecast"
             base_params.update({
-                "forecast_days": forecast_days if forecast_type == "Jours fixes" else 16,
-                "timezone": "auto"
+                "forecast_days": forecast_days,
+                "timezone": "auto",
+                "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
             })
             
         elif forecast_mode == "Prévisions saisonnières":
-            endpoint = "https://seasonal-api.open-meteo.com/v1/seasonal"
+            endpoint = "https://open-meteo.com/en/docs/seasonal-forecast-api"
             base_params.update({
-                "forecast_months": int(forecast_length.split()[0]),
-                "ensemble": "true"
+                "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
+                "models": "ecmwf_ifs",
+                "forecast_months": int(forecast_length.split()[0])
             })
             
         elif forecast_mode == "Projections climatiques":
@@ -487,24 +497,32 @@ if submitted:
             base_params.update({
                 "start_date": start_date.strftime("%Y-%m-%d"),
                 "end_date": end_date.strftime("%Y-%m-%d"),
-                "models": model
+                "models": model,
+                "daily": ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
             })
-        
-        # Ajout des paramètres météo
-        if temp_max: base_params["daily"].append("temperature_2m_max")
-        if temp_min: base_params["daily"].append("temperature_2m_min")
-        if precipitation: base_params["daily"].append("precipitation_sum")
-        
+
         # Appel API
         response = requests.get(endpoint, params=base_params)
-        data = response.json()
         
-        # Traitement des réponses
+        try:
+            data = response.json()
+        except JSONDecodeError:
+            raise ValueError("Réponse API invalide (non JSON)")
+        
+        if response.status_code != 200:
+            raise ValueError(get_api_error(data, response.status_code))
+
         dfs = []
         if isinstance(data, list):
             for idx, (lat, lon) in enumerate(zip(base_params["latitude"], base_params["longitude"])):
-                if idx >= len(data): break
+                if idx >= len(data):
+                    break
                 forecast = data[idx]
+                
+                # Vérification de la structure des données
+                if not isinstance(forecast, dict) or 'daily' not in forecast:
+                    st.warning(f"Données invalides pour {lat},{lon}")
+                    continue
                 
                 df_coord = create_dataframe(
                     forecast, 
@@ -515,6 +533,10 @@ if submitted:
                 )
                 dfs.append(df_coord)
         else:
+            # Traitement d'une réponse unique
+            if 'daily' not in data:
+                raise ValueError("Structure de réponse API invalide : clé 'daily' manquante")
+            
             df_coord = create_dataframe(
                 data,
                 base_params["latitude"][0],
@@ -539,5 +561,4 @@ if submitted:
         export_data(df)
 
     except Exception as e:
-        st.error(f"Erreur lors de la récupération des données : {str(e)}")
-
+        st.error(f"Erreur : {str(e)}")
