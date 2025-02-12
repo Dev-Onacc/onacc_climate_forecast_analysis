@@ -1,58 +1,59 @@
-# Weather Forecast App
+# Onacc Climate Forecast Analysis
 
-## 🌍 Objectif de l'application
-Cette application permet de générer des prévisions météorologiques pour des localités spécifiques en utilisant :
-- Des coordonnées GPS (latitude/longitude)
-- Un fichier Excel de localités
-- L'API ONACC-MC
+Onacc Climate Forecast Analysis est une application interactive permettant d'obtenir des **prévisions météorologiques et climatiques** pour des localités spécifiques. L'application utilise des **coordonnées GPS**, des **fichiers Excel** ou une **saisie manuelle** pour générer des prévisions précises et interactives en exploitant l'API **ONACC-MC**.
 
-## ✨ Fonctionnalités clés
-- Import de fichiers Excel avec gestion des localités
-- Filtrage multicritère (région/pays)
-- Visualisation interactive des données
-- Export des résultats en CSV/Excel
-- Prévisions sur mesure (1 à 14 jours)
+---
 
-## 🛠 Guide d'utilisation
-### Workflow principal
-1. **Importation des données** (Section 📤 Importer un fichier)
-2. **Filtrage des localités** (Région/Pays)
-3. **Sélection des coordonnées**
-4. **Configuration des paramètres**
-5. **Génération des prévisions**
-6. **Export des résultats**
+## 🌍 Fonctionnalités
 
-### Préparation des données
-Format du fichier Excel requis :
-```csv
-localite,latitude,longitude,altitude,region,country
-Yaoundé,3.8480,11.5021,726,Centre,Cameroun
-Douala,4.0511,9.7679,13,Littoral,Cameroun
-```
+### 📂 Importation de Données
+- Importation d’un **fichier Excel** contenant des localités (latitude, longitude, altitude, région, pays).
+- Sélection et **filtrage avancé** des localités par région et pays.
+- Visualisation interactive des localités sélectionnées.
 
-### Formats d'export
-- **CSV** : Structure légère pour analyse rapide
-- **Excel** : Format complet avec mise en forme
+### 🔎 Types de Prévisions
+L'utilisateur peut choisir entre trois types de prévisions :
+1. **Prévisions météo (1 à 14 jours)**
+   - Température maximale / minimale (°C)
+   - Précipitations (mm)
+   - Sélection de la période (jours fixes ou plage personnalisée)
+2. **Prévisions saisonnières (45 jours à 9 mois)**
+   - Analyse des tendances climatiques sur des périodes prolongées
+3. **Projections climatiques (jusqu’à 2050)**
+   - Simulation des changements climatiques à long terme
+   - Sélection du **modèle climatique** utilisé
 
-## 🚀 Déploiement
-### Prérequis
-- Python 3.8+
-- Librairies requises : `streamlit pandas requests plotly openpyxl xlsxwriter`
+### 📊 Visualisation Interactive
+- **Graphiques dynamiques** pour afficher :
+  - Température maximale/minimale sous forme de courbes.
+  - Précipitations sous forme d’histogramme.
+- **Affichage personnalisé** selon le type de prévision.
 
-### Installation
-```bash
-# Cloner le dépôt
-git clone https://github.com/Dev-Onacc/onacc_climate_forecast_analysis.git
+### 📤 Exportation des Données
+- Sauvegarde des prévisions sous **CSV** ou **Excel**.
+- Génération de **rapports météorologiques** exploitables pour l’analyse.
 
-# Installer les dépendances
-pip install -r requirements.txt
+---
 
-# Lancer l'application
-streamlit run app.py
-```
+## 💻 Installation et Déploiement
 
-### Déploiement en production
-#### 1. **Docker**
+### 🚀 Installation Locale
+1. **Cloner le dépôt GitHub**
+   ```bash
+   git clone https://github.com/Dev-Onacc/onacc_climate_forecast_analysis.git
+   ```
+2. **Installer les dépendances**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Lancer l'application**
+   ```bash
+   streamlit run app.py
+   ```
+
+### 🌍 Déploiement en Production
+#### Dockerisation
+Créer un fichier `Dockerfile` avec le contenu suivant :
 ```dockerfile
 FROM python:3.9-slim
 COPY . /app
@@ -60,21 +61,21 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 CMD ["streamlit", "run", "app.py", "--server.port=8501"]
 ```
+Construire et exécuter le conteneur :
+```bash
+docker build -t onacc-climate-forecast .
+docker run -p 8501:8501 onacc-climate-forecast
+```
+#### Déploiement sur le Cloud
+- **AWS EC2**
+- **Google Cloud Run**
+- **Azure App Service**
+- **Heroku**
 
-#### 2. **Services cloud**
-- AWS EC2
-- Google Cloud Run
-- Azure App Service
-- Heroku
+---
 
-## 🆘 Support technique
-### Problèmes courants
-| Symptôme | Solution |
-|----------|----------|
-| Erreur API | Vérifier la connexion internet |
-| Format de fichier invalide | Valider les colonnes obligatoires |
-| Données manquantes | Vérifier les filtres appliqués |
+## 🆘 Support
+- **Contact** : Équipe ONACC - DSI
+- **Email** : poum.bimbar@onacc.org
 
-### Contact support
-**Équipe Onacc - DSI**  
-📧 poum.bimbar@onacc.cm  
+Cette application est un outil essentiel pour **les chercheurs, météorologues et analystes climatiques**, facilitant **la prise de décision basée sur des prévisions précises et interactives**. 🌦️📈

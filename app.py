@@ -43,10 +43,13 @@ if selected_page == "Documentation":
     with st.expander("## 🌟 Présentation générale", expanded=True):
         st.markdown("""
         ### Objectif de l'application
-        Cette application permet de générer des prévisions météorologiques pour des localités spécifiques en utilisant :
-        - Des coordonnées GPS (latitude/longitude)
-        - Un fichier Excel de localités
-        - L'API ONACC-MC
+        L'application facilite la génération de prévisions climatiques et météorologiques basées sur des coordonnées GPS, un fichier Excel de localités ou une saisie manuelle. Elle permet aux utilisateurs de :
+        - Charger des données géographiques (localités avec latitude/longitude).
+        - Filtrer les localités par région et pays.
+        - Sélectionner les paramètres météorologiques et climatiques à analyser.
+        - Générer des prévisions météorologiques, saisonnières ou des projections climatiques.
+        - Visualiser les résultats sous forme de graphiques interactifs avec Plotly.
+        - Exporter les prévisions sous CSV ou Excel.
 
         ### Fonctionnalités clés
         - Import de fichiers Excel avec gestion des localités
