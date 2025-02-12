@@ -43,20 +43,36 @@ if selected_page == "Documentation":
     with st.expander("## 🌟 Présentation générale", expanded=True):
         st.markdown("""
         ### Objectif de l'application
-        L'application facilite la génération de prévisions climatiques et météorologiques basées sur des coordonnées GPS, un fichier Excel de localités ou une saisie manuelle. Elle permet aux utilisateurs de :
-        - Charger des données géographiques (localités avec latitude/longitude).
-        - Filtrer les localités par région et pays.
-        - Sélectionner les paramètres météorologiques et climatiques à analyser.
-        - Générer des prévisions météorologiques, saisonnières ou des projections climatiques.
-        - Visualiser les résultats sous forme de graphiques interactifs avec Plotly.
-        - Exporter les prévisions sous CSV ou Excel.
+        Onacc Climate Forecast Analysis est une application interactive permettant d'obtenir des **prévisions météorologiques et climatiques** pour des localités spécifiques. L'application utilise des **coordonnées GPS**, des **fichiers Excel** ou une **saisie manuelle** pour générer des prévisions précises et interactives en exploitant l'API **ONACC-MC**.
+        
 
-        ### Fonctionnalités clés
-        - Import de fichiers Excel avec gestion des localités
-        - Filtrage multicritère (région/pays)
-        - Visualisation interactive des données
-        - Export des résultats en CSV/Excel
-        - Prévisions sur mesure (1 à 14 jours)
+        ## 🌍 Fonctionnalités
+        ### 📂 Importation de Données
+        - Importation d’un **fichier Excel** contenant des localités (latitude, longitude, altitude, région, pays).
+        - Sélection et **filtrage avancé** des localités par région et pays.
+        - Visualisation interactive des localités sélectionnées.
+
+        ### 🔎 Types de Prévisions
+        L'utilisateur peut choisir entre trois types de prévisions :
+        1. **Prévisions météo (1 à 14 jours)**
+        - Température maximale / minimale (°C)
+        - Précipitations (mm)
+        - Sélection de la période (jours fixes ou plage personnalisée)
+        2. **Prévisions saisonnières (45 jours à 9 mois)**
+        - Analyse des tendances climatiques sur des périodes prolongées
+        3. **Projections climatiques (jusqu’à 2050)**
+        - Simulation des changements climatiques à long terme
+        - Sélection du **modèle climatique** utilisé
+
+        ### 📊 Visualisation Interactive
+        - **Graphiques dynamiques** pour afficher :
+        - Température maximale/minimale sous forme de courbes.
+        - Précipitations sous forme d’histogramme.
+        - **Affichage personnalisé** selon le type de prévision.
+
+        ### 📤 Exportation des Données
+        - Sauvegarde des prévisions sous **CSV** ou **Excel**.
+        - Génération de **rapports météorologiques** exploitables pour l’analyse.
         """)
 
     with st.expander("## 🛠 Guide d'utilisation", expanded=False):
