@@ -87,7 +87,7 @@ if selected_page == "Documentation":
         ### Installation
         ```bash
         # Cloner le dépôt
-        git clone https://github.com/onacc/weather-forecast-app.git
+        git clone https://github.com/Dev-Onacc/onacc_climate_forecast_analysis.git
         
         # Installer les dépendances
         pip install -r requirements.txt
