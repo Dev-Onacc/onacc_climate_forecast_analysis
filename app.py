@@ -55,7 +55,7 @@ if selected_page == "Documentation":
 
         ### 🔎 Types de Prévisions
         L'utilisateur peut choisir entre trois types de prévisions :
-        1. **Prévisions météo (1 à 14 jours)**
+        1. **Prévisions décadaires (1 à 14 jours)**
         - Température maximale / minimale (°C)
         - Précipitations (mm)
         - Sélection de la période (jours fixes ou plage personnalisée)
@@ -382,14 +382,14 @@ with st.form("input_form"):
 
     forecast_mode = st.radio(
         "Type de prévision :",
-        options=["Prévisions météo", "Prévisions saisonnières", "Projections climatiques"],
+        options=["Prévisions décadaires", "Prévisions saisonnières", "Projections climatiques"],
         horizontal=True
     )
 
     col1, col2 = st.columns(2)
     
     with col1:
-        if forecast_mode == "Prévisions météo":
+        if forecast_mode == "Prévisions décadaires":
             forecast_type = st.radio(
                 "Période de prévision :",
                 ["Jours fixes", "Plage personnalisée"]
@@ -476,7 +476,7 @@ if submitted:
             "daily": []
         }
 
-        if forecast_mode == "Prévisions météo":
+        if forecast_mode == "Prévisions décadaires":
             endpoint = "https://api.open-meteo.com/v1/forecast"
             base_params.update({
                 "forecast_days": forecast_days,
